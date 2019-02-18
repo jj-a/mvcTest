@@ -36,9 +36,11 @@ public class CrawlingTest4 {
 				// 페이지 설정
 				params="&isActualPointWriteExecute=false&isMileageSubscriptionAlready=false&isMileageSubscriptionReject=false&order="+order+"&page="+i;
 				doc=Jsoup.connect(url+params).get();
-				Elements elements=doc.select(".score_reple p");	// 글제목 (Elements)
+				
+				doc.select(".score_reple p>span").remove();	// 내용 중 실관람객 아이콘 표기 삭제
+				Elements elements=doc.select(".score_reple p");	// 평점내용 (Elements)
 				Elements users=doc.select(".score_reple dl>dt a>span");	// 작성자 (Elements)
-				Elements starscores=doc.select(".star_score>em");	// 별점 (Elements)
+				Elements starscores=doc.select(".star_score>em");	// 평점 (Elements)
 				
 				
 				// 해당페이지 내용 출력
@@ -47,22 +49,22 @@ public class CrawlingTest4 {
 					//int no=(pagesize*(i-1))+elements.indexOf(element)+1;	// 오름차순
 					int no=totalcnt-(pagesize*(i-1)+elements.indexOf(element));	// 내림차순
 					Element user=users.get(elements.indexOf(element));	// 작성자
-					Element score=starscores.get(elements.indexOf(element));	// 별점
+					int nickidx=user.text().indexOf("(");
+					Element score=starscores.get(elements.indexOf(element));	// 평점
 					// indexOf() = (elements에 해당하는 element의 index)
+					
 					System.out.print("["+no+"] [");
 					for(int j=0;j<Integer.parseInt(score.text());j++) System.out.print("★");
-					System.out.print("] ["+score.text()+"] ");
-					System.out.print("["+user.text()+"] ");
+					System.out.print("]["+score.text()+"] ");
+					if(nickidx<0)	System.out.print("["+user.text()+"] ");
+					else System.out.print("["+user.text().substring(0,user.text().indexOf("("))+"] ");
 					System.out.println(element.text());
 				}
 
 				if(!doc.select(".pg_next").hasText()) break;	// ★★ 글이 더이상 없으면 종료
 				
 				i++;	// 페이지 증감
-			}
-			
-			
-			
+			} // while() end
 			
 		}catch(Exception e) {
 			System.out.println("[ Crawling Failed ] "+e);
